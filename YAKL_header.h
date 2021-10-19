@@ -41,3 +41,4 @@
 #include "YAKL_error.h"
 #include "YAKL_alloc_free.h"
 
+#include "KokkosWrap.h"

@@ -3,13 +3,13 @@
 #include <Kokkos_Core.hpp>
 
 
-extern "C" void c_kokkos_initialize_without_args() {
-  Kokkos::initialize();
-}
-
-extern "C" void c_kokkos_finalize() {
-  Kokkos::finalize();
-}
+//extern "C" void c_kokkos_initialize_without_args() {
+//  Kokkos::initialize();
+//}
+//
+//extern "C" void c_kokkos_finalize() {
+//  Kokkos::finalize();
+//}
 
 
 

@@ -46,6 +46,14 @@ set_source_files_properties(${YAKL_F90_SOURCE} PROPERTIES COMPILE_FLAGS "${YAKL_
 add_library(yakl STATIC ${YAKL_SOURCE})
 target_compile_features(yakl PUBLIC cxx_std_14)
 
+#find_package(Kokkos)
+target_link_libraries(yakl Kokkos::kokkos)
+
+#add_subdirectory(kokkos)
+#target_include_directories(yakl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/kokkos)
+#target_include_directories(yakl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/kokkos/core/src)
+#target_include_directories(yakl PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/kokkos)
+
 target_include_directories(yakl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(yakl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/gptl)
 

@@ -1,6 +1,6 @@
-#include <Kokkos_Core.hpp>
+//#include <Kokkos_Core.hpp>
 #include "YAKL.h"
-#include "KokkosWrap.h"
+//#include "KokkosWrap.h"
 
 using yakl::Array;
 using yakl::styleFortran;

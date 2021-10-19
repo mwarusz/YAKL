@@ -21,11 +21,16 @@ if ("${YAKL_ARCH}" STREQUAL "CUDA")
   #endif()
 endif()
 
-# YAKL library
-add_subdirectory(.. ./yakl)
+# YAKL library without Kokkos
+#add_subdirectory(../YAKL_NO_KOKKOS ./yakl_no_kokkos)
 
 # Kokkos Library
 add_subdirectory(../kokkos ./kokkos )
+
+# YAKL library
+add_subdirectory(.. ./yakl)
+
+
 
 # Unit test directories
 add_subdirectory(CArray)

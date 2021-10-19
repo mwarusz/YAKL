@@ -1,6 +1,6 @@
-#include <Kokkos_Core.hpp>
+//#include <Kokkos_Core.hpp>
 #include "YAKL.h"
-#include "KokkosWrap.h"
+//#include "KokkosWrap.h"
 
 typedef float real;
 typedef Kokkos::HostSpace memHost;
