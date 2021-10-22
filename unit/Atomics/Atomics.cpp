@@ -4,11 +4,12 @@
 
 using yakl::Array;
 using yakl::styleC;
-using yakl::memDevice;
-using yakl::c::parallel_for;
-using yakl::c::Bounds;
-using yakl::c::SimpleBounds;
-using yakl::COLON;
+using Kokkos::parallel_for;
+//using yakl::memDevice;
+//using yakl::c::parallel_for;
+//using yakl::c::Bounds;
+//using yakl::c::SimpleBounds;
+//using yakl::COLON;
 
 
 void die(std::string msg) {
@@ -17,15 +18,16 @@ void die(std::string msg) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
+  Kokkos::initialize(argc,argv);
   yakl::init();
   {
     int constexpr n = 1024 + 1;
     {
       typedef float T;
 
-      Array<T,1,memDevice,styleC> data("data",n);
-      parallel_for( n , YAKL_LAMBDA (int i) {
+      Array<T,1,yakl::memDevice,styleC> data("data",n);
+      parallel_for( n , KOKKOS_LAMBDA (int i) {
         data(i) = i - (n-1)/2.;
       });
 
@@ -52,8 +54,8 @@ int main() {
     {
       typedef double T;
 
-      Array<T,1,memDevice,styleC> data("data",n);
-      parallel_for( n , YAKL_LAMBDA (int i) {
+      Array<T,1,yakl::memDevice,styleC> data("data",n);
+      parallel_for( n , KOKKOS_LAMBDA (int i) {
         data(i) = i - (n-1)/2.;
       });
 
@@ -80,7 +82,7 @@ int main() {
     {
       typedef int T;
 
-      Array<T,1,memDevice,styleC> data("data",n);
+      Array<T,1,yakl::memDevice,styleC> data("data",n);
       parallel_for( n , YAKL_LAMBDA (int i) {
         data(i) = i - (n-1)/2.;
       });
@@ -106,6 +108,7 @@ int main() {
     }
 
   }
+  Kokkos::finalize();
   yakl::finalize();
   
   return 0;

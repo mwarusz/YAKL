@@ -151,13 +151,15 @@ namespace yakl {
 
     inline void init(real1d &trig) {
       int constexpr log2_no2 = mylog2<SIZE/2>::value;
-      yakl::c::parallel_for( log2_no2 , YAKL_LAMBDA (int i) {
+      //yakl::c::parallel_for( log2_no2 , YAKL_LAMBDA (int i) {
+      Kokkos::parallel_for( log2_no2 , KOKKOS_LAMBDA (int i) {
         unsigned int m = 1;
         for (int j=1; j <= i+1; j++) { m *= 2; }
         trig(OFF_COS1+i) = cos(2*M_PI/static_cast<real>(m));
         trig(OFF_SIN1+i) = sin(2*M_PI/static_cast<real>(m));
       });
-      yakl::c::parallel_for( SIZE/2 , YAKL_LAMBDA (int i) {
+      //yakl::c::parallel_for( SIZE/2 , YAKL_LAMBDA (int i) {
+      Kokkos::parallel_for( SIZE/2 , KOKKOS_LAMBDA (int i) {
         trig(OFF_COS2+i) = cos(2*M_PI*i/static_cast<real>(SIZE));
         trig(OFF_SIN2+i) = sin(2*M_PI*i/static_cast<real>(SIZE));
       });

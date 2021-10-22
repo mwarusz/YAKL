@@ -5,11 +5,13 @@
 using yakl::Array;
 using yakl::styleC;
 using yakl::styleFortran;
-using yakl::memHost;
-using yakl::memDevice;
-using yakl::c::parallel_for;
-using yakl::c::Bounds;
-using yakl::c::SimpleBounds;
+using Kokkos::parallel_for;
+using KokkosWrap::c::LoopBounds;
+//  using yakl::memHost;
+//  using yakl::memDevice;
+//  using yakl::c::parallel_for;
+//  using yakl::c::Bounds;
+//  using yakl::c::SimpleBounds;
 using yakl::COLON;
 using yakl::SArray;
 using yakl::FSArray;
@@ -17,29 +19,29 @@ using yakl::SB;
 
 typedef double real;
 
-typedef Array<real,1,memDevice,styleC> real_c_1d;
-typedef Array<real,2,memDevice,styleC> real_c_2d;
-typedef Array<real,3,memDevice,styleC> real_c_3d;
+typedef Array<real,1,yakl::memDevice,styleC> real_c_1d;
+typedef Array<real,2,yakl::memDevice,styleC> real_c_2d;
+typedef Array<real,3,yakl::memDevice,styleC> real_c_3d;
 
-typedef Array<real,1,memDevice,styleFortran> real_f_1d;
-typedef Array<real,2,memDevice,styleFortran> real_f_2d;
-typedef Array<real,3,memDevice,styleFortran> real_f_3d;
+typedef Array<real,1,yakl::memDevice,styleFortran> real_f_1d;
+typedef Array<real,2,yakl::memDevice,styleFortran> real_f_2d;
+typedef Array<real,3,yakl::memDevice,styleFortran> real_f_3d;
 
-typedef Array<int,1,memDevice,styleC> int_c_1d;
-typedef Array<int,2,memDevice,styleC> int_c_2d;
-typedef Array<int,3,memDevice,styleC> int_c_3d;
+typedef Array<int,1,yakl::memDevice,styleC> int_c_1d;
+typedef Array<int,2,yakl::memDevice,styleC> int_c_2d;
+typedef Array<int,3,yakl::memDevice,styleC> int_c_3d;
 
-typedef Array<int,1,memDevice,styleFortran> int_f_1d;
-typedef Array<int,2,memDevice,styleFortran> int_f_2d;
-typedef Array<int,3,memDevice,styleFortran> int_f_3d;
+typedef Array<int,1,yakl::memDevice,styleFortran> int_f_1d;
+typedef Array<int,2,yakl::memDevice,styleFortran> int_f_2d;
+typedef Array<int,3,yakl::memDevice,styleFortran> int_f_3d;
 
-typedef Array<bool,1,memDevice,styleC> bool_c_1d;
-typedef Array<bool,2,memDevice,styleC> bool_c_2d;
-typedef Array<bool,3,memDevice,styleC> bool_c_3d;
+typedef Array<bool,1,yakl::memDevice,styleC> bool_c_1d;
+typedef Array<bool,2,yakl::memDevice,styleC> bool_c_2d;
+typedef Array<bool,3,yakl::memDevice,styleC> bool_c_3d;
 
-typedef Array<bool,1,memDevice,styleFortran> bool_f_1d;
-typedef Array<bool,2,memDevice,styleFortran> bool_f_2d;
-typedef Array<bool,3,memDevice,styleFortran> bool_f_3d;
+typedef Array<bool,1,yakl::memDevice,styleFortran> bool_f_1d;
+typedef Array<bool,2,yakl::memDevice,styleFortran> bool_f_2d;
+typedef Array<bool,3,yakl::memDevice,styleFortran> bool_f_3d;
 
 
 void die(std::string msg) {
@@ -48,7 +50,8 @@ void die(std::string msg) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
+  Kokkos::initialize(argc,argv);
   yakl::init();
   {
     int constexpr n1 = 5;
@@ -245,7 +248,7 @@ int main() {
       SArray<bool,1,5> smask_c;
       FSArray<bool,1,SB<5>> smask_f;
 
-      parallel_for( 5 , YAKL_LAMBDA (int i) {
+      parallel_for( 5 , KOKKOS_LAMBDA (int i) {
         arr_c (i  ) = i-2;
         arr_f (i+1) = i-2;
         mask_c(i  ) = (i+1)%2 == 0;
@@ -337,7 +340,7 @@ int main() {
       if ( anyEQ( sarr_f , smask_f , 2 ) ) die("sarr_f anyEQ masked fail");
 
 
-      parallel_for( 5 , YAKL_LAMBDA (int i) {
+      parallel_for( 5 , KOKKOS_LAMBDA (int i) {
         mask_c(i  ) = i == 2;
         mask_f(i+1) = i == 2;
       });
@@ -357,7 +360,7 @@ int main() {
       if ( anyNEQ( sarr_f , smask_f , 0 ) ) die("sarr_f anyNEQ masked fail");
 
 
-      parallel_for( 5 , YAKL_LAMBDA (int i) {
+      parallel_for( 5 , KOKKOS_LAMBDA (int i) {
         arr_c(i  ) = 1;
         arr_f(i+1) = 1;
       });
@@ -551,7 +554,7 @@ int main() {
       SArray<bool,1,10> sc;
       FSArray<bool,1,SB<10>> sf;
       
-      parallel_for( 10 , YAKL_LAMBDA( int i ) {
+      parallel_for( 10 , KOKKOS_LAMBDA( int i ) {
         c(i) = i%2 == 0;
         f(i+1) = i%2 == 0;
       });
@@ -593,6 +596,7 @@ int main() {
 
 
   }
+  Kokkos::finalize();
   yakl::finalize();
   
   return 0;

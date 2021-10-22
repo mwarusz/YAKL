@@ -187,7 +187,7 @@ namespace yakl {
   template <class T, int rank, int myMem, int myStyle, class I>
   void memset( Array<T,rank,myMem,myStyle> &arr , I val ) {
     if (myMem == memDevice) {
-      c::parallel_for( arr.totElems() , YAKL_LAMBDA (int i) {
+      Kokkos::parallel_for( arr.totElems() , KOKKOS_LAMBDA (int i) {
         arr.myData[i] = val;
       });
       #if defined(YAKL_AUTO_FENCE) || defined(YAKL_DEBUG)

@@ -4,16 +4,18 @@
 
 using yakl::Array;
 using yakl::styleC;
-using yakl::memHost;
-using yakl::memDevice;
-using yakl::c::parallel_for;
-using yakl::c::Bounds;
-using yakl::c::SimpleBounds;
-using yakl::COLON;
+using Kokkos::parallel_for;
+using KokkosWrap::c::LoopBounds;
+//using yakl::memHost;
+//using yakl::memDevice;
+//using yakl::c::parallel_for;
+//using yakl::c::Bounds;
+//using yakl::c::SimpleBounds;
+//using yakl::COLON;
 
 typedef float real;
 
-typedef Array<real,1,memDevice,styleC> real1d;
+typedef Array<real,1,yakl::memDevice,styleC> real1d;
 
 namespace blah {
   real1d a, b, c;
@@ -26,7 +28,8 @@ void die(std::string msg) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
+  Kokkos::initialize(argc,argv);
   yakl::init();
   {
     int constexpr n = 100;
@@ -43,7 +46,7 @@ int main() {
     YAKL_SCOPE(b,::blah::b);
     YAKL_SCOPE(c,::blah::c);
 
-    parallel_for( Bounds<1>(n) , YAKL_LAMBDA (int i) {
+    parallel_for( LoopBounds<1>(n) , KOKKOS_LAMBDA (int i) {
       a(i) = b(i) + c(i);
     });
 
@@ -56,6 +59,7 @@ int main() {
     blah::b = real1d();
     blah::c = real1d();
   }
+  Kokkos::finalize();
   yakl::finalize();
   
   return 0;

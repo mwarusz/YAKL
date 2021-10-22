@@ -5,17 +5,17 @@
 
 using yakl::Array;
 using yakl::styleC;
-using yakl::memHost;
-using yakl::memDevice;
-using yakl::c::parallel_for;
-using yakl::c::Bounds;
-using yakl::c::SimpleBounds;
-using yakl::COLON;
+//using yakl::memHost;
+//using yakl::memDevice;
+//using yakl::c::parallel_for;
+//using yakl::c::Bounds;
+//using yakl::c::SimpleBounds;
+//using yakl::COLON;
 
 typedef double real;
 
-typedef Array<real,1,memDevice,styleC> real1d;
-typedef Array<real,1,memHost,styleC> realHost1d;
+typedef Array<real,1,yakl::memDevice,styleC> real1d;
+typedef Array<real,1,yakl::memHost,styleC> realHost1d;
 
 
 void die(std::string msg) {
@@ -24,13 +24,14 @@ void die(std::string msg) {
 }
 
 
-int main() {
+int main(int argc, char* argv[]) {
+  Kokkos::initialize(argc,argv);
   yakl::init();
   {
     int constexpr n = 8;
 
     real1d data("data",n+2);
-    parallel_for( n , YAKL_LAMBDA (int i) {
+    Kokkos::parallel_for( n , KOKKOS_LAMBDA (int i) {
       data(i) = i+1;
     });
 
@@ -40,7 +41,7 @@ int main() {
     yakl::RealFFT1D<n,real> fft;
     fft.init(fft.trig);
 
-    parallel_for( 1 , YAKL_LAMBDA (int i) {
+    Kokkos::parallel_for( 1 , KOKKOS_LAMBDA (int i) {
       fft.forward(data,fft.trig);
     });
 
@@ -61,7 +62,7 @@ int main() {
       if ( abs(dataHost(i) - fftExact(i)) > 1.e-13 ) { die("ERROR: forward gives wrong answer"); }
     }
 
-    parallel_for( 1 , YAKL_LAMBDA (int i) {
+    Kokkos::parallel_for( 1 , KOKKOS_LAMBDA (int i) {
       fft.inverse(data,fft.trig);
     });
 
@@ -71,6 +72,7 @@ int main() {
     }
 
   }
+  Kokkos::finalize();
   yakl::finalize();
   
   return 0;

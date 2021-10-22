@@ -45,7 +45,7 @@ public:
   inline void hostWrite(T val) {
     // Copy data to device
     auto &myData = this->data;
-    c::parallel_for( c::Bounds<1>(1) , YAKL_LAMBDA (int dummy) {
+    Kokkos::parallel_for( KokkosWrap::c::LoopBounds<1>(1) , KOKKOS_LAMBDA (int dummy) {
       myData(0) = val;
     });
   }
