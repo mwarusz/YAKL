@@ -278,11 +278,11 @@ int main(int argc, char* argv[]) {
     // Test non-1 lower bounds and non-standard loops
     ///////////////////////////////////////////////////////////
     real3d lower("lower",{-1,2},5,{0,4} );
-    //yakl::memset(lower,0.f);
-    //parallel_for( LoopBounds<3>({-1,2},5,{0,4}) , KOKKOS_LAMBDA (int i, int j, int k) {
-    //  lower(i+1,j,k) = 1;
-    //});
-    //if (yakl::intrinsics::sum(lower) != 50) { die("lower bounds: incorrect sum for lower"); }
+    yakl::memset(lower,0.f);
+    parallel_for( LoopBounds<3>({-1,2},5,{0,4}) , KOKKOS_LAMBDA (int i, int j, int k) {
+      lower(i,j,k) = 1;
+    });
+    if (yakl::intrinsics::sum(lower) != 100) { die("lower bounds: incorrect sum for lower"); }
 
     ///////////////////////////////////////////////////////////
     // get_lbounds and get_ubounds
@@ -356,6 +356,7 @@ int main(int argc, char* argv[]) {
 
   }
   yakl::finalize();
+  Kokkos::finalize();
   
   return 0;
 }
