@@ -17,34 +17,26 @@ public:
   */
   YAKL_INLINE T &operator()(index_t i0) const {
     static_assert( rank == 1 , "ERROR: Indexing non-rank-1 array with 1 index" );
-    #ifdef YAKL_DEBUG
-      check(i0);
-    #endif
+    if constexpr (yakl_debug()) check(i0);
     index_t ind = i0;
     return this->myData[ind];
   }
   YAKL_INLINE T &operator()(index_t i0, index_t i1) const {
     static_assert( rank == 2 , "ERROR: Indexing non-rank-2 array with 2 indices" );
-    #ifdef YAKL_DEBUG
-      check(i0,i1);
-    #endif
+    if constexpr (yakl_debug()) check(i0,i1);
     index_t ind = i0*this->dimension[1] + i1;
     return this->myData[ind];
   }
   YAKL_INLINE T &operator()(index_t i0, index_t i1, index_t i2) const {
     static_assert( rank == 3 , "ERROR: Indexing non-rank-3 array with 3 indices" );
-    #ifdef YAKL_DEBUG
-      check(i0,i1,i2);
-    #endif
+    if constexpr (yakl_debug()) check(i0,i1,i2);
     index_t ind = (i0*this->dimension[1] + i1)*
                       this->dimension[2] + i2;
     return this->myData[ind];
   }
   YAKL_INLINE T &operator()(index_t i0, index_t i1, index_t i2, index_t i3) const {
     static_assert( rank == 4 , "ERROR: Indexing non-rank-4 array with 4 indices" );
-    #ifdef YAKL_DEBUG
-      check(i0,i1,i2,i3);
-    #endif
+    if constexpr (yakl_debug()) check(i0,i1,i2,i3);
     index_t ind = ((i0*this->dimension[1] + i1)*
                        this->dimension[2] + i2)*
                        this->dimension[3] + i3;
@@ -52,9 +44,7 @@ public:
   }
   YAKL_INLINE T &operator()(index_t i0, index_t i1, index_t i2, index_t i3, index_t i4) const {
     static_assert( rank == 5 , "ERROR: Indexing non-rank-5 array with 5 indices" );
-    #ifdef YAKL_DEBUG
-      check(i0,i1,i2,i3,i4);
-    #endif
+    if constexpr (yakl_debug()) check(i0,i1,i2,i3,i4);
     index_t ind = (((i0*this->dimension[1] + i1)*
                         this->dimension[2] + i2)*
                         this->dimension[3] + i3)*
@@ -63,9 +53,7 @@ public:
   }
   YAKL_INLINE T &operator()(index_t i0, index_t i1, index_t i2, index_t i3, index_t i4, index_t i5) const {
     static_assert( rank == 6 , "ERROR: Indexing non-rank-6 array with 6 indices" );
-    #ifdef YAKL_DEBUG
-      check(i0,i1,i2,i3,i4,i5);
-    #endif
+    if constexpr (yakl_debug()) check(i0,i1,i2,i3,i4,i5);
     index_t ind = ((((i0*this->dimension[1] + i1)*
                          this->dimension[2] + i2)*
                          this->dimension[3] + i3)*
@@ -75,9 +63,7 @@ public:
   }
   YAKL_INLINE T &operator()(index_t i0, index_t i1, index_t i2, index_t i3, index_t i4, index_t i5, index_t i6) const {
     static_assert( rank == 7 , "ERROR: Indexing non-rank-7 array with 7 indices" );
-    #ifdef YAKL_DEBUG
-      check(i0,i1,i2,i3,i4,i5,i6);
-    #endif
+    if constexpr (yakl_debug()) check(i0,i1,i2,i3,i4,i5,i6);
     index_t ind = (((((i0*this->dimension[1] + i1)*
                           this->dimension[2] + i2)*
                           this->dimension[3] + i3)*
@@ -89,9 +75,7 @@ public:
   YAKL_INLINE T &operator()(index_t i0, index_t i1, index_t i2, index_t i3, index_t i4, index_t i5, index_t i6,
                             index_t i7) const {
     static_assert( rank == 8 , "ERROR: Indexing non-rank-8 array with 8 indices" );
-    #ifdef YAKL_DEBUG
-      check(i0,i1,i2,i3,i4,i5,i6,i7);
-    #endif
+    if constexpr (yakl_debug()) check(i0,i1,i2,i3,i4,i5,i6,i7);
     index_t ind = ((((((i0*this->dimension[1] + i1)*
                            this->dimension[2] + i2)*
                            this->dimension[3] + i3)*
@@ -114,59 +98,53 @@ public:
     if constexpr (rank >= 6) { if (i5 >= this->dimension[5]) ind_out_bounds<5>(i5); }
     if constexpr (rank >= 7) { if (i6 >= this->dimension[6]) ind_out_bounds<6>(i6); }
     if constexpr (rank >= 8) { if (i7 >= this->dimension[7]) ind_out_bounds<7>(i7); }
-    #if defined(YAKL_SEPARATE_MEMORY_SPACE) && YAKL_CURRENTLY_ON_DEVICE()
-      if constexpr (myMem == memHost) yakl_throw("ERROR: host array being accessed in a device kernel");
-    #endif
-    #if defined(YAKL_SEPARATE_MEMORY_SPACE) && YAKL_CURRENTLY_ON_HOST() && !defined(YAKL_MANAGED_MEMORY)
-      if constexpr (myMem == memDevice) {
-        std::cerr << "ERROR: For Array labeled: " << this->myname << ":" << std::endl;
-        std::cerr << "Device array being accessed on the host without managed memory turned on";
-        yakl_throw("");
-      }
-    #endif
+    if constexpr ( separate_device_address_space() && currently_on_device() &&
+                   (! ignore_address_space()) && myMem == memHost ) {
+      yakl_throw("ERROR: host array being accessed in a device kernel");
+    }
+    if constexpr ( separate_device_address_space() && currently_on_host() &&
+                   (! ignore_address_space()) && myMem == memDevice ) {
+      std::cerr << "ERROR: For Array labeled: " << this->myname << ":" << std::endl;
+      std::cerr << "Device array being accessed on the host without managed memory turned on";
+      yakl_throw("");
+    }
   }
 
 
   // if this function gets called, then there was definitely an error
   template <int I>
   YAKL_INLINE void ind_out_bounds(index_t ind) const {
-    #ifdef YAKL_DEBUG
-      #if YAKL_CURRENTLY_ON_HOST()
+    if constexpr (yakl_debug()) {
+      if constexpr (currently_on_host()) {
         std::cerr << "ERROR: For Array labeled: " << this->myname << ":" << std::endl;
         std::cerr << "Index " << I+1 << " of " << rank << " is out of bounds.  Provided index: " << ind
                   << ".  Upper Bound: " << this->dimension[I]-1 << std::endl;
         yakl_throw("");
-      #else
+      } else {
         yakl_throw("ERROR: Index out of bounds.");
-      #endif
-    #endif
+      }
+    }
   }
 
 
   // Array slicing
   template <int N> YAKL_INLINE Array<T,N,myMem,styleC> slice( Dims const &dims ) const {
-    #ifdef YAKL_DEBUG
+    if constexpr (yakl_debug()) {
       if (rank != dims.size()) {
-        #if YAKL_CURRENTLY_ON_HOST()
-          std::cerr << "For Array named " << this->myname << ":  ";
-        #endif
+        if constexpr (currently_on_host()) std::cerr << "For Array named " << this->myname << ":  ";
         yakl_throw("ERROR: slice rank must be equal to dims.size()");
       }
       for (int i = rank-1-N; i >= 0; i--) {
         if (dims.data[i] >= this->dimension[i]) {
-          #if YAKL_CURRENTLY_ON_HOST()
-            std::cerr << "For Array named " << this->myname << ":  ";
-          #endif
+          if constexpr (currently_on_host()) std::cerr << "For Array named " << this->myname << ":  ";
           yakl_throw("ERROR: One of the slicing dimension dimensions is out of bounds");
         }
       }
       if (! this->initialized()) {
-        #if YAKL_CURRENTLY_ON_HOST()
-          std::cerr << "For Array named " << this->myname << ":  ";
-        #endif
+        if constexpr (currently_on_host()) std::cerr << "For Array named " << this->myname << ":  ";
         yakl_throw("ERROR: calling slice() on an Array that hasn't been allocated");
       }
-    #endif
+    }
     Array<T,N,myMem,styleC> ret;
     index_t offset = 1;
     for (int i = rank-1; i > rank-1-N; i--) {
@@ -179,14 +157,14 @@ public:
       offset *= this->dimension[i];
     }
     ret.myData = &(this->myData[retOff]);
-    #if YAKL_CURRENTLY_ON_HOST()
+    if constexpr (currently_on_host()) {
       yakl_mtx_lock();
       ret.refCount = this->refCount;
       if (this->refCount != nullptr) {
         (*(this->refCount))++;
       }
       yakl_mtx_unlock();
-    #endif
+    }
     return ret;
   }
   template <int N> YAKL_INLINE Array<T,N,myMem,styleC> slice( int i0 ) const {
@@ -248,20 +226,16 @@ public:
   // Create a separately allocate host object with the same rank, memory space, and style
   template <class TLOC=typename std::remove_cv<T>::type>
   inline Array<typename std::remove_cv<TLOC>::type,rank,memHost,styleC> createHostObject() const {
-    #ifdef YAKL_DEBUG
+    if constexpr (yakl_debug()) {
       if (! this->initialized()) {
-        #if YAKL_CURRENTLY_ON_HOST()
-          std::cerr << "For Array named " << this->myname << ":  ";
-        #endif
+        if constexpr (currently_on_host()) std::cerr << "For Array named " << this->myname << ":  ";
         yakl_throw("Error: createHostObject() called on an Array that hasn't been allocated");
       }
-    #endif
+    }
     // If this Array is of const type, then we need to use non-const when allocating, then cast it to const aterward
     Array<typename std::remove_cv<TLOC>::type,rank,memHost,styleC> ret;
     for (int i=0; i<rank; i++) { ret.dimension[i] = this->dimension[i]; }
-    #ifdef YAKL_DEBUG
-      ret.myname = this->myname;
-    #endif
+    if constexpr (yakl_debug()) ret.myname = this->myname;
     ret.allocate();
     return ret;
   }
@@ -282,20 +256,16 @@ public:
   // Create a separately allocate device object with the same rank, memory space, and style
   template <class TLOC=typename std::remove_cv<T>::type>
   inline Array<typename std::remove_cv<TLOC>::type,rank,memDevice,styleC> createDeviceObject() const {
-    #ifdef YAKL_DEBUG
+    if constexpr (yakl_debug()) {
       if (! this->initialized()) {
-        #if YAKL_CURRENTLY_ON_HOST()
-          std::cerr << "For Array named " << this->myname << ":  ";
-        #endif
+        if constexpr (currently_on_host()) std::cerr << "For Array named " << this->myname << ":  ";
         yakl_throw("Error: createDeviceObject() called on an Array that hasn't been allocated.");
       }
-    #endif
+    }
     // If this Array is of const type, then we need to use non-const when allocating, then cast it to const aterward
     Array<typename std::remove_cv<TLOC>::type,rank,memDevice,styleC> ret;
     for (int i=0; i<rank; i++) { ret.dimension[i] = this->dimension[i]; }
-    #ifdef YAKL_DEBUG
-      ret.myname = this->myname;
-    #endif
+    if constexpr (yakl_debug()) ret.myname = this->myname;
     ret.allocate();
     return ret;
   }

@@ -140,16 +140,12 @@ namespace yakl {
     real1d trig;
 
     YAKL_INLINE RealFFT1D() {
-      #if YAKL_CURRENTLY_ON_HOST()
-        trig = real1d("trig",2*mylog2<SIZE/2>::value + SIZE);
-      #endif
+      if constexpr (currently_on_host()) trig = real1d("trig",2*mylog2<SIZE/2>::value + SIZE);
     }
 
 
     YAKL_INLINE ~RealFFT1D() {
-      #if YAKL_CURRENTLY_ON_HOST()
-        trig = real1d();
-      #endif
+      if constexpr (currently_on_host()) trig = real1d();
     }
 
 

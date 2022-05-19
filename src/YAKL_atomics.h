@@ -54,11 +54,8 @@ namespace yakl {
       #endif
     }
     template <class T> __host__ __device__ __forceinline__ void atomicMin(T &update , T value) {
-      #if YAKL_CURRENTLY_ON_DEVICE()
-        atomicMin_device(update,value);
-      #else
-        atomicMin_host  (update,value);
-      #endif
+      if constexpr (currently_on_device()) { atomicMin_device(update,value); }
+      else                                 { atomicMin_host  (update,value); }
     }
 
     __device__ __forceinline__ void atomicMax_device(float &update , float value) {
@@ -94,11 +91,8 @@ namespace yakl {
       #endif
     }
     template <class T> __host__ __device__ __forceinline__ void atomicMax(T &update , T value) {
-      #if YAKL_CURRENTLY_ON_DEVICE()
-        atomicMax_device(update,value);
-      #else
-        atomicMax_host  (update,value);
-      #endif
+      if constexpr (currently_on_device()) { atomicMax_device(update,value); }
+      else                                 { atomicMax_host  (update,value); }
     }
 
     __device__ __forceinline__ void atomicAdd_device(float &update , float value) {
@@ -127,11 +121,8 @@ namespace yakl {
       ::atomicAdd( &update , value );
     }
     template <class T> __host__ __device__ __forceinline__ void atomicAdd(T &update , T value) {
-      #if YAKL_CURRENTLY_ON_DEVICE()
-        atomicAdd_device(update,value);
-      #else
-        atomicAdd_host  (update,value);
-      #endif
+      if constexpr (currently_on_device()) { atomicAdd_device(update,value); }
+      else                                 { atomicAdd_host  (update,value); }
     }
 
 
@@ -197,11 +188,8 @@ namespace yakl {
       ::atomicMin( &update , value );
     }
     template <class T> __host__ __device__ __forceinline__ void atomicMin(T &update , T value) {
-      #if YAKL_CURRENTLY_ON_DEVICE()
-        atomicMin_device(update,value);
-      #else
-        atomicMin_host  (update,value);
-      #endif
+      if constexpr (currently_on_device()) { atomicMin_device(update,value); }
+      else                                 { atomicMin_host  (update,value); }
     }
 
     __device__ __forceinline__ void atomicMax_device(float &update , float value) {
@@ -233,11 +221,8 @@ namespace yakl {
       ::atomicMax( &update , value );
     }
     template <class T> __host__ __device__ __forceinline__ void atomicMax(T &update , T value) {
-      #if YAKL_CURRENTLY_ON_DEVICE()
-        atomicMax_device(update,value);
-      #else
-        atomicMax_host  (update,value);
-      #endif
+      if constexpr (currently_on_device()) { atomicMax_device(update,value); }
+      else                                 { atomicMax_host  (update,value); }
     }
 
     __device__ __forceinline__ void atomicAdd_device(float &update , float value) {
@@ -262,11 +247,8 @@ namespace yakl {
       ::atomicAdd( &update , value );
     }
     template <class T> __host__ __device__ __forceinline__ void atomicAdd(T &update , T value) {
-      #if YAKL_CURRENTLY_ON_DEVICE()
-        atomicAdd_device(update,value);
-      #else
-        atomicAdd_host  (update,value);
-      #endif
+      if constexpr (currently_on_device()) { atomicAdd_device(update,value); }
+      else                                 { atomicAdd_host  (update,value); }
     }
 
 
