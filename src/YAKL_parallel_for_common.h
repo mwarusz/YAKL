@@ -74,7 +74,7 @@ YAKL_DEVICE_INLINE void callFunctorOuter(F const &f , Bounds<N,simple> const &bn
       cudaKernelVal <<< (unsigned int) (bounds.nIter-1)/VecLen+1 , VecLen >>> ( bounds , f , config );
       check_last_error();
     } else {
-      F *fp = (F *) functorBuffer;
+      F * fp = (F *) functor_buffer.alloc_functor( sizeof(F) );
       cudaMemcpyAsync(fp,&f,sizeof(F),cudaMemcpyHostToDevice);
       check_last_error();
       cudaKernelRef <<< (unsigned int) (bounds.nIter-1)/VecLen+1 , VecLen >>> ( bounds , *fp , config );
@@ -102,7 +102,7 @@ YAKL_DEVICE_INLINE void callFunctorOuter(F const &f , Bounds<N,simple> const &bn
       cudaKernelOuterVal <<< (unsigned int) bounds.nIter , config.inner_size >>> ( bounds , f , config , InnerHandler() );
       check_last_error();
     } else {
-      F *fp = (F *) functorBuffer;
+      F * fp = (F *) functor_buffer.alloc_functor( sizeof(F) );
       cudaMemcpyAsync(fp,&f,sizeof(F),cudaMemcpyHostToDevice);
       check_last_error();
       cudaKernelOuterRef <<< (unsigned int) bounds.nIter , config.inner_size >>> ( bounds , *fp , config , InnerHandler() );
@@ -212,7 +212,7 @@ YAKL_DEVICE_INLINE void callFunctorOuter(F const &f , Bounds<N,simple> const &bn
       });
       sycl_default_stream().wait();
     } else {
-      F *fp = (F *) functorBuffer;
+      F * fp = (F *) functor_buffer.alloc_functor( sizeof(F) );
       sycl_default_stream().memcpy(fp, &f, sizeof(F));
       sycl_default_stream().parallel_for( sycl::range<1>(bounds.nIter) , [=] (sycl::id<1> i) {
         callFunctor( *fp , bounds , i );
@@ -234,7 +234,7 @@ YAKL_DEVICE_INLINE void callFunctorOuter(F const &f , Bounds<N,simple> const &bn
       });
       sycl_default_stream().wait();
     } else {
-      F *fp = (F *) functorBuffer;
+      F * fp = (F *) functor_buffer.alloc_functor( sizeof(F) );
       sycl_default_stream().memcpy(fp, &f, sizeof(F));
       sycl_default_stream().parallel_for( sycl::nd_range<1>(bounds.nIter*config.inner_size,config.inner_size) ,
                                           [=] (sycl::nd_item<1> item) {

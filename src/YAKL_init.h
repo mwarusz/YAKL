@@ -104,18 +104,14 @@ namespace yakl {
       if (config.get_timer_start       ()) timer_start     = config.get_timer_start       ();
       if (config.get_timer_stop        ()) timer_stop      = config.get_timer_stop        ();
 
-      // Allocate functorBuffer
-      #ifdef YAKL_ARCH_CUDA
-        cudaMalloc(&functorBuffer,functorBufSize);
-        fence();
-      #endif
-      #ifdef YAKL_ARCH_SYCL
-        if (yakl_mainproc()) std::cout << "Running on "
-                                       << sycl_default_stream().get_device().get_info<sycl::info::device::name>()
-                                       << "\n";
-        functorBuffer = sycl::malloc_device(functorBufSize, sycl_default_stream());
-        fence();
-      #endif
+      // Allocate the functor buffer
+      // We don't want the functor_buffer's pool to use the main YAKL pool under the hood
+      // So we're using default allocators (e.g., malloc, cudamalloc, hipmalloc, etc.)
+      std::function<void *( size_t )> alloc;
+      std::function<void ( void * )>  dealloc;
+      set_device_alloc_free(alloc , dealloc);
+      auto zero = [] (void *ptr, size_t bytes) {};
+      functor_buffer.init( alloc , dealloc , zero );
 
       // Print the device name being run on
       #if defined(YAKL_ARCH_CUDA)

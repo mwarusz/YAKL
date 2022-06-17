@@ -15,6 +15,7 @@ namespace yakl {
     #elif defined(YAKL_ARCH_OPENMP)
       #pragma omp barrier
     #endif
+    functor_buffer.free_all_functors();
   }
 
   // Block further work on the inner parallelism level until previous work is completed
