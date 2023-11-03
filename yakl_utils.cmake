@@ -92,6 +92,9 @@ macro(yakl_process_target tname)
 
   yakl_process_cxx_source_files("${cxxfiles}")
 
+  # Let the user know what compile flags are being used
+  message(STATUS "** YAKL target ${tname} is using the following compiler flags: ${YAKL_COMPILER_FLAGS} **")
+
   set_property(TARGET ${tname} PROPERTY CXX_STANDARD 17)
 
   if ("${YAKL_TARGET_SUFFIX}" STREQUAL "")
